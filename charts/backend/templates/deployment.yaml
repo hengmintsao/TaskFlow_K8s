@@ -20,13 +20,15 @@ spec:
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         ports:
         - name: http
-          containerPort: 3001
+          containerPort: 8000
           protocol: TCP
         env:
         - name: NODE_ENV
           value: {{ .Values.config.nodeEnv | quote }}
         - name: API_URL
           value: {{ .Values.config.apiUrl | quote }}
+        - name: DATABASE_URL
+          value: {{ .Values.config.databaseUrl | quote }}
         - name: DB_HOST
           value: {{ .Values.secrets.dbHost | quote }}
         - name: DB_PORT
@@ -48,13 +50,13 @@ spec:
               key: db-name
         livenessProbe:
           httpGet:
-            path: /api/health
+            path: /
             port: http
           initialDelaySeconds: 10
           periodSeconds: 10
         readinessProbe:
           httpGet:
-            path: /api/health
+            path: /
             port: http
           initialDelaySeconds: 5
           periodSeconds: 5

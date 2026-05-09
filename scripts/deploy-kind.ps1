@@ -9,7 +9,13 @@ param(
 )
 
 # Source helper functions
-$scriptDir = Split-Path -Parent $MyInvocation.PSCommandPath
+$scriptDir = $PSScriptRoot
+if (-not $scriptDir) {
+    $scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
+}
+if (-not $scriptDir) {
+    $scriptDir = "."
+}
 . (Join-Path $scriptDir "helpers.ps1")
 
 function Deploy-ToKind {
@@ -33,8 +39,8 @@ function Deploy-ToKind {
     Write-Status "Prerequisites OK" -Status "SUCCESS"
     
     # Get chart and values paths
-    $chartPath = Get-ChartDirectory "taskflow"
-    $valuesPath = Get-ValuesFile "kind"
+    $chartPath = Get-ChartDirectory -RelativePath "taskflow" -ScriptDir $scriptDir
+    $valuesPath = Get-ValuesFile -Environment "kind" -ScriptDir $scriptDir
     
     if (-not (Test-Path $chartPath)) {
         Write-Status "Chart not found at $chartPath" -Status "ERROR"

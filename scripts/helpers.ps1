@@ -35,20 +35,20 @@ function Test-KindInstalled {
 
 function Get-ChartDirectory {
     param(
-        [string]$RelativePath = "."
+        [string]$RelativePath = ".",
+        [string]$ScriptDir
     )
-    $scriptDir = Split-Path -Parent $MyInvocation.PSCommandPath
-    $projectRoot = Split-Path -Parent $scriptDir
-    return Join-Path $projectRoot "charts" $RelativePath
+    $projectRoot = Split-Path -Parent $ScriptDir
+    return Join-Path -Path $projectRoot -ChildPath (Join-Path "charts" $RelativePath)
 }
 
 function Get-ValuesFile {
     param(
-        [string]$Environment
+        [string]$Environment,
+        [string]$ScriptDir
     )
-    $scriptDir = Split-Path -Parent $MyInvocation.PSCommandPath
-    $projectRoot = Split-Path -Parent $scriptDir
-    return Join-Path $projectRoot "values" "$Environment.yaml"
+    $projectRoot = Split-Path -Parent $ScriptDir
+    return Join-Path -Path $projectRoot -ChildPath (Join-Path "values" "$Environment.yaml")
 }
 
 function Write-Status {
@@ -91,13 +91,16 @@ function Update-HelmDependencies {
     Write-Status "Dependencies updated" -Status "SUCCESS"
 }
 
-Export-ModuleMember -Function @(
-    'Test-HelmInstalled',
-    'Test-KubectlInstalled',
-    'Test-KindInstalled',
-    'Get-ChartDirectory',
-    'Get-ValuesFile',
-    'Write-Status',
-    'Wait-ForDeployment',
-    'Update-HelmDependencies'
-)
+# Export functions only if running as module
+if ($MyInvocation.MyCommand.Name -match '\.psm1$') {
+    Export-ModuleMember -Function @(
+        'Test-HelmInstalled',
+        'Test-KubectlInstalled',
+        'Test-KindInstalled',
+        'Get-ChartDirectory',
+        'Get-ValuesFile',
+        'Write-Status',
+        'Wait-ForDeployment',
+        'Update-HelmDependencies'
+    )
+}

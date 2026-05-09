@@ -43,6 +43,7 @@ backend:
   config:
     apiUrl: http://taskflow-backend:3001
     nodeEnv: development
+    databaseUrl: postgresql://postgres:postgres@taskflow-postgres:5432/taskflow_db
   secrets:
     dbUser: postgres
     dbPassword: postgres

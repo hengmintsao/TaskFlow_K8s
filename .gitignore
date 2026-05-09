@@ -1,0 +1,30 @@
+# Helm
+charts/**/Chart.lock
+charts/**/charts/
+
+# Kind
+.kind/
+
+# Temporary files
+*.tmp
+*.bak
+*.swp
+*.swo
+*~
+
+# IDE
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# System
+.env.local
+secrets/

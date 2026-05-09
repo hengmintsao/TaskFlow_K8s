@@ -1,0 +1,52 @@
+# TaskFlow Umbrella Chart - Default Values
+# Override with: kind.yaml, prod.yaml, etc.
+
+frontend:
+  enabled: true
+  replicaCount: 1
+  image:
+    repository: taskflow-frontend
+    tag: latest
+  service:
+    type: ClusterIP
+    port: 3000
+  ingress:
+    enabled: true
+    className: nginx
+    hosts:
+      - host: taskflow.local
+        paths:
+          - path: /
+            pathType: Prefix
+
+backend:
+  enabled: true
+  replicaCount: 1
+  image:
+    repository: taskflow-backend
+    tag: latest
+  service:
+    type: ClusterIP
+    port: 3001
+  config:
+    apiUrl: http://taskflow-backend:3001
+  secrets:
+    dbUser: postgres
+    dbPassword: postgres
+    dbName: taskflow_db
+
+postgres:
+  enabled: true
+  image:
+    repository: postgres
+    tag: "15"
+  service:
+    type: ClusterIP
+    port: 5432
+  persistence:
+    enabled: false
+    size: 10Gi
+  secrets:
+    password: postgres
+    database: taskflow_db
+    user: postgres

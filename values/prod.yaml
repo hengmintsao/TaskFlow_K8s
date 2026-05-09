@@ -1,0 +1,87 @@
+# Values for Production
+# Usage: helm install taskflow ./charts/taskflow -f ./values/prod.yaml
+
+frontend:
+  enabled: true
+  replicaCount: 3
+  image:
+    repository: taskflow-frontend
+    tag: v1.0.0
+    pullPolicy: IfNotPresent
+  service:
+    type: ClusterIP
+    port: 3000
+  ingress:
+    enabled: true
+    className: nginx
+    annotations:
+      cert-manager.io/cluster-issuer: "letsencrypt-prod"
+      nginx.ingress.kubernetes.io/rate-limit: "100"
+    hosts:
+      - host: taskflow.prod.com
+        paths:
+          - path: /
+            pathType: Prefix
+    tls:
+      - secretName: taskflow-tls
+        hosts:
+          - taskflow.prod.com
+  resources:
+    limits:
+      cpu: 1000m
+      memory: 512Mi
+    requests:
+      cpu: 500m
+      memory: 256Mi
+
+backend:
+  enabled: true
+  replicaCount: 3
+  image:
+    repository: taskflow-backend
+    tag: v1.0.0
+    pullPolicy: IfNotPresent
+  service:
+    type: ClusterIP
+    port: 3001
+  config:
+    apiUrl: https://taskflow.prod.com/api
+    nodeEnv: production
+  secrets:
+    dbUser: taskflow_user
+    dbPassword: CHANGE_ME_SECURE_PASSWORD
+    dbName: taskflow_db
+    dbHost: taskflow-postgres
+    dbPort: 5432
+  resources:
+    limits:
+      cpu: 1000m
+      memory: 512Mi
+    requests:
+      cpu: 500m
+      memory: 256Mi
+
+postgres:
+  enabled: true
+  image:
+    repository: postgres
+    tag: "15"
+    pullPolicy: IfNotPresent
+  service:
+    type: ClusterIP
+    port: 5432
+  persistence:
+    enabled: true
+    size: 50Gi
+    storageClassName: fast-ssd
+  secrets:
+    password: CHANGE_ME_SECURE_DB_PASSWORD
+    user: taskflow_user
+    database: taskflow_db
+  resources:
+    limits:
+      cpu: 2000m
+      memory: 2Gi
+    requests:
+      cpu: 1000m
+      memory: 1Gi

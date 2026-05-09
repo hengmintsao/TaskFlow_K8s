@@ -1,0 +1,83 @@
+# Values for KIND (local development cluster)
+# Usage: helm install taskflow ./charts/taskflow -f ./values/kind.yaml
+
+frontend:
+  enabled: true
+  replicaCount: 1
+  image:
+    repository: taskflow-frontend
+    tag: latest
+    pullPolicy: IfNotPresent
+  service:
+    type: ClusterIP
+    port: 3000
+  ingress:
+    enabled: true
+    className: nginx
+    annotations:
+      cert-manager.io/cluster-issuer: "letsencrypt-staging"
+    hosts:
+      - host: taskflow.local
+        paths:
+          - path: /
+            pathType: Prefix
+    tls: []
+  resources:
+    limits:
+      cpu: 500m
+      memory: 256Mi
+    requests:
+      cpu: 100m
+      memory: 128Mi
+
+backend:
+  enabled: true
+  replicaCount: 1
+  image:
+    repository: taskflow-backend
+    tag: latest
+    pullPolicy: IfNotPresent
+  service:
+    type: ClusterIP
+    port: 3001
+  config:
+    apiUrl: http://taskflow-backend:3001
+    nodeEnv: development
+  secrets:
+    dbUser: postgres
+    dbPassword: postgres
+    dbName: taskflow_db
+    dbHost: taskflow-postgres
+    dbPort: 5432
+  resources:
+    limits:
+      cpu: 500m
+      memory: 256Mi
+    requests:
+      cpu: 100m
+      memory: 128Mi
+
+postgres:
+  enabled: true
+  image:
+    repository: postgres
+    tag: "15"
+    pullPolicy: IfNotPresent
+  service:
+    type: ClusterIP
+    port: 5432
+  persistence:
+    enabled: false
+    size: 10Gi
+    storageClassName: local-path
+  secrets:
+    password: postgres
+    user: postgres
+    database: taskflow_db
+  resources:
+    limits:
+      cpu: 500m
+      memory: 512Mi
+    requests:
+      cpu: 100m
+      memory: 256Mi
